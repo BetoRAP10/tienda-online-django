@@ -1,0 +1,23 @@
+# Entorno virtual
+venv/
+.venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Configuracion local y secretos
+tienda_online/local_settings.py
+.env
+
+# Django
+*.log
+db.sqlite3
+media/
+
+# Editores / sistema
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store

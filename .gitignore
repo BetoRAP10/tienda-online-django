@@ -21,3 +21,7 @@ media/
 .idea/
 Thumbs.db
 .DS_Store
+
+# Frontend (React / Vite)
+node_modules/
+frontend/dist/

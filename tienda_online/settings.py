@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
+from datetime import timedelta
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -44,6 +45,7 @@ THIRD_APPS = [
     'django_filters',
     'rest_framework_simplejwt',
     'corsheaders',
+    'drf_yasg',
 ]
 
 OWN_APPS = [
@@ -53,10 +55,31 @@ OWN_APPS = [
 
 INSTALLED_APPS = BASE_APPS + THIRD_APPS + OWN_APPS
 
+# Modelo de usuario personalizado (login con email, campo telefono extra)
+AUTH_USER_MODEL = 'accounts.User'
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+}
+
+# Tiempo de vida del token de acceso/refresco (requerido por la practica)
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+}
+
+# Para poder probar JWT directo desde la interfaz de Swagger (boton Authorize)
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header',
+        }
+    },
+    'USE_SESSION_AUTH': False,
 }
 
 MIDDLEWARE = [

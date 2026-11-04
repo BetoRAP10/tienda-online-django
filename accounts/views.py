@@ -1,12 +1,14 @@
-from rest_framework.views import APIView
+from django.contrib.auth.hashers import make_password
 from rest_framework.generics import CreateAPIView
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
 from zeep import Client
 from zeep.exceptions import Fault
 
-from .serializers import UserSerializer, RegisterSerializer
+from .models import User
+from .serializers import RegisterSerializer, UserSerializer
 
 COUNTRY_INFO_WSDL = (
     "http://webservices.oorsprong.org/websamples.countryinfo/"
@@ -24,8 +26,34 @@ def get_soap_client():
     return _soap_client
 
 
-class MeView(APIView):
-    """Devuelve los datos del usuario autenticado (requiere JWT)."""
+class UserApiViewSet(ModelViewSet):
+    """CRUD de usuarios (solo administradores)."""
+
+    permission_classes = [IsAdminUser]
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        # La contrasena llega en texto plano desde el cliente: se hashea
+        # antes de guardarla.
+        request.data['password'] = make_password(request.data['password'])
+        return super().create(request, *args, **kwargs)
+
+    def partial_update(self, request, *args, **kwargs):
+        # Correccion de seguridad (error #2 del manual): el codigo original
+        # hacia request.data["password"] = request.user.password cuando no
+        # se enviaba contrasena, lo que SOBRESCRIBIA la contrasena del
+        # usuario editado con el hash de quien hace la peticion (por
+        # ejemplo, el admin). Aqui simplemente no se toca request.data si
+        # no viene password: al ser un PATCH, el serializer deja ese campo
+        # sin modificar.
+        if "password" in request.data:
+            request.data["password"] = make_password(request.data["password"])
+        return super().partial_update(request, *args, **kwargs)
+
+
+class UserView(APIView):
+    """Datos personales del usuario autenticado (sin exponer la contrasena)."""
 
     permission_classes = [IsAuthenticated]
 
@@ -49,7 +77,7 @@ class RegisterView(CreateAPIView):
                 "message": "Usuario registrado exitosamente",
                 "user": {"username": user.username, "email": user.email},
             },
-            status=status.HTTP_201_CREATED,
+            status=201,
         )
 
 
@@ -68,7 +96,7 @@ class CountryInfoView(APIView):
         try:
             result = client.service.FullCountryInfo(iso_code.upper())
         except Fault as exc:
-            return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": str(exc)}, status=400)
 
         languages = []
         if result.Languages and result.Languages.tLanguage:

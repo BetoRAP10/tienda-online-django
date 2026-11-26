@@ -9,9 +9,9 @@ export function Login() {
   const navigate = useNavigate();
 
   const formik = useFormik({
-    initialValues: { username: "", password: "" },
+    initialValues: { email: "", password: "" },
     validationSchema: Yup.object({
-      username: Yup.string().required("El usuario es obligatorio"),
+      email: Yup.string().email("Correo no válido").required("El correo es obligatorio"),
       password: Yup.string().required("La contraseña es obligatoria"),
     }),
     onSubmit: async (values, { setStatus, setSubmitting }) => {
@@ -37,19 +37,19 @@ export function Login() {
         <h1>Iniciar sesión</h1>
         <p className="auth-card__subtitle">tienda_online &middot; panel protegido</p>
 
-        <label htmlFor="username">Usuario</label>
+        <label htmlFor="email">Correo electrónico</label>
         <input
-          id="username"
-          name="username"
-          type="text"
-          value={formik.values.username}
+          id="email"
+          name="email"
+          type="email"
+          value={formik.values.email}
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
           autoComplete="off"
           spellCheck="false"
         />
-        {formik.touched.username && formik.errors.username && (
-          <span className="field-error">{formik.errors.username}</span>
+        {formik.touched.email && formik.errors.email && (
+          <span className="field-error">{formik.errors.email}</span>
         )}
 
         <label htmlFor="password">Contraseña</label>

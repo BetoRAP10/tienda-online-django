@@ -1,0 +1,24 @@
+# Entorno virtual y cache de Python (se reinstala dentro del contenedor)
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# Frontend (tiene su propio Dockerfile y contexto de build)
+frontend/
+
+# Secretos y configuracion local (no deben quedar dentro de la imagen)
+tienda_online/local_settings.py
+.env
+
+# Control de versiones y editor
+.git/
+.gitignore
+.vscode/
+
+# Documentos de practicas anteriores (no son parte de la app)
+*.pdf
+
+# Otros
+db.sqlite3
+*.log

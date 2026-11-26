@@ -60,6 +60,56 @@ con Django y React: `api/` (llamadas al backend), `context/` y `hooks/`
   **Advice Slip** (sin API key), y un formulario para consultar el Web Service
   SOAP de países a través del backend.
 
+## Ejecutar todo con Docker (RA4)
+
+El proyecto completo (base de datos MySQL, backend Django y frontend React)
+puede levantarse con un solo comando usando Docker Compose, sin instalar
+Python, Node ni MySQL en el equipo.
+
+### Requisitos
+
+- Tener [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+  instalado y corriendo.
+
+### Pasos
+
+1. Clonar este repositorio.
+2. Copiar `.env.example` a `.env` y, si se desea, cambiar la contraseña de
+   MySQL y la clave secreta de Django (el archivo `.env` real nunca se sube
+   al repositorio, está en `.gitignore`):
+   ```
+   cp .env.example .env
+   ```
+3. Levantar los tres contenedores (base de datos, backend y frontend):
+   ```
+   docker compose up -d --build
+   ```
+4. Verificar que los tres contenedores quedaron corriendo:
+   ```
+   docker ps
+   ```
+5. Abrir en el navegador:
+   - Frontend (React): http://localhost:5173
+   - Backend / API docs (Swagger): http://localhost:8000/swagger/
+
+### Persistencia de datos
+
+La base de datos usa un volumen de Docker (`datos-mysql`), por lo que la
+información (por ejemplo, los usuarios registrados desde `/register`)
+sobrevive aunque se apaguen los contenedores:
+
+```
+docker compose down
+docker compose up -d
+```
+
+### Apagar y limpiar
+
+```
+docker compose down          # detiene y elimina los contenedores
+docker compose down -v       # además elimina el volumen de la base de datos
+```
+
 ## Documentación de las prácticas
 
 Los informes en PDF de cada entrega (Práctica 2, Práctica 3 y RA2) están en la
